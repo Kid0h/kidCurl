@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\kidCurl.hpp">
+    <ClInclude Include="include\kidCurl\kidCurl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\curl\curl.h">

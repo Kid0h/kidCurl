@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../include/kidCurl.hpp"
+#include "kidCurl/kidCurl.hpp"
 
 kidCurl::kidCurl() {
     curl = curl_easy_init();
