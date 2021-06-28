@@ -1,0 +1,1 @@
+I built these static Curl libraries, it's from a recent stable release.
