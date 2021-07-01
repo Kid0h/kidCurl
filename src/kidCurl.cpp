@@ -12,7 +12,7 @@ kidCurl::~kidCurl() {
 // Handling URL parameters
 void kidCurl::add_url_parameters(const std::vector<kidCurl::Parameter>& parameters, std::string& url)
 {
-    uint32_t parameters_num = parameters.size();
+    size_t parameters_num = parameters.size();
     if (parameters_num > 0)
     {
         url += "?";
