@@ -32,7 +32,7 @@ If you'll be building for `x64` in `Release` mode, you'll need to link agaist `l
 Sending a GET & POST requests + a bonus Discord Webhook message:
 ```c++
 #include <iostream>
-#include "kidCurl.hpp"
+#include "kidCurl/kidCurl.hpp"
 
 #define URL "https://www.myexternalip.com/raw"
 #define DISCORD_WEBHOOK_URL ""
@@ -62,7 +62,6 @@ int main()
 	std::cout << "Discord Webhook: Request\n"
 		<< "Success: " << std::boolalpha << request_discord_webhook
 		<< "\n\n";
-
 
 	return 0;
 }
