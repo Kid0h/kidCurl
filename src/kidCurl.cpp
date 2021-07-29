@@ -47,7 +47,7 @@ void kidCurl::sanitize_url(std::string& url)
 }
 
 // Easy GET request
-kidCurl::Response kidCurl::Get(std::string url, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const char* user_agent, long timeout)
+kidCurl::Response kidCurl::Get(std::string url, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
 {
     // Response
     Response response;
@@ -57,27 +57,29 @@ kidCurl::Response kidCurl::Get(std::string url, const std::vector<Parameter>& pa
     sanitize_url(url);
 
     //Headers
-    struct curl_slist* slist;
-    slist = NULL;
+    struct curl_slist* slist{ nullptr };
 
     for (size_t i{ 0 }; i < headers.size(); i++)
         slist = curl_slist_append(slist, (headers[i].name + ": " + headers[i].value).c_str());
 
     if (curl)
     {
+        // Curl options
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1L);
+        if (url.rfind("https", 0)) {
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1L);
+        }
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
         if (proxy.proxy != "") { curl_easy_setopt(curl, CURLOPT_PROXY, proxy.proxy.c_str()); if (proxy.username != "") { curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, proxy.username.c_str()); curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, proxy.password.c_str()); } }
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response.content);
 
+        // Preform
         curl_easy_perform(curl);
 
         // Get info
@@ -85,17 +87,16 @@ kidCurl::Response kidCurl::Get(std::string url, const std::vector<Parameter>& pa
 
         //Cleanup
         curl_easy_reset(curl);
-        curl_slist_free_all(slist);
-        slist = NULL;
+        curl_slist_free_all(slist); slist = nullptr;
         return response;
     }
 
-    response.r_status = 0;
+    response.r_status = -1;
     return response;
 }
 
 // Easy POST request
-kidCurl::Response kidCurl::Post(std::string url, const std::string& content, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const char* user_agent, long timeout)
+kidCurl::Response kidCurl::Post(std::string url, const std::string& content, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
 {
     // Response
     Response response;
@@ -105,29 +106,31 @@ kidCurl::Response kidCurl::Post(std::string url, const std::string& content, con
     sanitize_url(url);
 
     //Headers
-    struct curl_slist* slist;
-    slist = NULL;
+    struct curl_slist* slist{ nullptr };
 
     for (size_t i{ 0 }; i < headers.size(); i++)
         slist = curl_slist_append(slist, (headers[i].name + ": " + headers[i].value).c_str());
 
     if (curl)
     {
+        // Curl options
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1L);
+        if (url.rfind("https", 0)) {
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1L);
+        }
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content.c_str());
         curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content.c_str());
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
         if (proxy.proxy != "") { curl_easy_setopt(curl, CURLOPT_PROXY, proxy.proxy.c_str()); if (proxy.username != "") { curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, proxy.username.c_str()); curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, proxy.password.c_str()); } }
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
-        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response.content);
 
+        // Preform
         curl_easy_perform(curl);
 
         // Get info
@@ -135,13 +138,111 @@ kidCurl::Response kidCurl::Post(std::string url, const std::string& content, con
 
         // Cleanup
         curl_easy_reset(curl);
-        curl_slist_free_all(slist);
-        slist = NULL;
+        curl_slist_free_all(slist); slist = nullptr;
 
         return response;
     }
 
     response.r_status = 0;
+    return response;
+}
+
+kidCurl::Response kidCurl::Put(std::string url, const std::string& content, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
+{
+    // Response
+    Response response;
+
+    // URL Parameters & URL Sanitization
+    add_url_parameters(parameters, url);
+    sanitize_url(url);
+
+    //Headers
+    struct curl_slist* slist{ nullptr };
+
+    for (size_t i{ 0 }; i < headers.size(); i++)
+        slist = curl_slist_append(slist, (headers[i].name + ": " + headers[i].value).c_str());
+
+    if (curl)
+    {
+        // Curl options
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        if (url.rfind("https", 0)) {
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1L);
+        }
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content.c_str());
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
+        if (proxy.proxy != "") { curl_easy_setopt(curl, CURLOPT_PROXY, proxy.proxy.c_str()); if (proxy.username != "") { curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, proxy.username.c_str()); curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, proxy.password.c_str()); } }
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response.content);
+
+        // Preform
+        curl_easy_perform(curl);
+
+        // Get info
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response.r_status);
+
+        // Cleanup
+        curl_easy_reset(curl);
+        curl_slist_free_all(slist); slist = nullptr;
+
+        return response;
+    }
+
+    response.r_status = 0;
+    return response;
+}
+
+kidCurl::Response kidCurl::Delete(std::string url, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
+{
+    // Response
+    Response response;
+
+    // URL Parameters & URL Sanitization
+    add_url_parameters(parameters, url);
+    sanitize_url(url);
+
+    //Headers
+    struct curl_slist* slist{ nullptr };
+
+    for (size_t i{ 0 }; i < headers.size(); i++)
+        slist = curl_slist_append(slist, (headers[i].name + ": " + headers[i].value).c_str());
+
+    if (curl)
+    {
+        // Curl options
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        if (url.rfind("https", 0)) {
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1L);
+        }
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
+        if (proxy.proxy != "") { curl_easy_setopt(curl, CURLOPT_PROXY, proxy.proxy.c_str()); if (proxy.username != "") { curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, proxy.username.c_str()); curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, proxy.password.c_str()); } }
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response.content);
+
+        // Preform
+        curl_easy_perform(curl);
+
+        // Get info
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response.r_status);
+
+        //Cleanup
+        curl_easy_reset(curl);
+        curl_slist_free_all(slist); slist = nullptr;
+        return response;
+    }
+
+    response.r_status = -1;
     return response;
 }
 

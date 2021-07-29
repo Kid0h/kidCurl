@@ -62,8 +62,10 @@ public:
         unsigned int color{};
     };
 
-    Response Get(std::string rUrl, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const char* user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
-    Response Post(std::string url, const std::string& content, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const char* user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
+    Response Get(std::string rUrl, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const std::string& user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
+    Response Post(std::string url, const std::string& content, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const std::string& user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
+    Response Put(std::string url, const std::string& content, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const std::string& user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
+    Response Delete(std::string rUrl, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const std::string& user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
     bool webhookExecute(const std::string& webhookUrl, const std::string& content, const std::string& username = "", const std::string& avatarUrl = "", const std::vector<Embed>& embeds = {});
 
 
