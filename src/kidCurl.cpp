@@ -50,34 +50,39 @@ void kidCurl::add_url_parameters(const std::vector<kidCurl::Parameter>& paramete
     {
         url += "?";
         for (size_t i{ 0 }; i < parameters_num; i++)
-            url += (parameters[i].name + "=" + parameters[i].value + "&");
-
+        {
+            url.append(curl_easy_escape(curl, parameters[i].name.c_str(), parameters[i].name.length()));
+            url.push_back('=');
+            url.append(curl_easy_escape(curl, parameters[i].value.c_str(), parameters[i].value.length()));
+            url.push_back('&');
+        }
         url.pop_back();
+    
     }
 }
 
 // Sanitize URL
-void kidCurl::sanitize_url(std::string& url)
-{
-    for (uint32_t i{}; i < url.length(); i++)
-    {
-        switch (url[i])
-        {
-        case ' ':
-            url[i] = '%';
-            url.insert(i + 1, "20");
-            break;
-
-        case '\'':
-            url[i] = '%';
-            url.insert(i + 1, "27");
-            break;
-
-        default:
-            break;
-        }
-    }
-}
+//void kidCurl::sanitize_url(std::string& url)
+//{
+//    for (uint32_t i{}; i < url.length(); i++)
+//    {
+//        switch (url[i])
+//        {
+//        case ' ':
+//            url[i] = '%';
+//            url.insert(i + 1, "20");
+//            break;
+//
+//        case '\'':
+//            url[i] = '%';
+//            url.insert(i + 1, "27");
+//            break;
+//
+//        default:
+//            break;
+//        }
+//    }
+//}
 
 // Easy GET request
 kidCurl::Response kidCurl::Get(std::string url, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
@@ -85,9 +90,8 @@ kidCurl::Response kidCurl::Get(std::string url, const std::vector<Parameter>& pa
     // Response
     Response response;
 
-    // URL Parameters & URL Sanitization
+    // URL Parameters
     add_url_parameters(parameters, url);
-    sanitize_url(url);
 
     //Headers
     struct curl_slist* slist{ nullptr };
@@ -122,9 +126,8 @@ kidCurl::Response kidCurl::Post(std::string url, const std::string& content, con
     // Response
     Response response;
 
-    // URL Parameters & URL Sanitization
+    // URL Parameters
     add_url_parameters(parameters, url);
-    sanitize_url(url);
 
     //Headers
     struct curl_slist* slist{ nullptr };
@@ -161,9 +164,8 @@ kidCurl::Response kidCurl::Put(std::string url, const std::string& content, cons
     // Response
     Response response;
 
-    // URL Parameters & URL Sanitization
+    // URL Parameters
     add_url_parameters(parameters, url);
-    sanitize_url(url);
 
     //Headers
     struct curl_slist* slist{ nullptr };
@@ -200,9 +202,8 @@ kidCurl::Response kidCurl::Delete(std::string url, const std::vector<Parameter>&
     // Response
     Response response;
 
-    // URL Parameters & URL Sanitization
+    // URL Parameters
     add_url_parameters(parameters, url);
-    sanitize_url(url);
 
     //Headers
     struct curl_slist* slist{ nullptr };

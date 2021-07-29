@@ -78,5 +78,4 @@ private:
 private:
     static void curl_add_skeleton(CURL* curl, const char* url, const char* user_agent, const Proxy& proxy, curl_slist* slist, const char* type, long& timeout, std::string& output, bool ssl);
     void add_url_parameters(const std::vector<kidCurl::Parameter>& parameters, std::string& url);
-    void sanitize_url(std::string& url);
 };
