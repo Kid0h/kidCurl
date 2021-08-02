@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable:4267)
 
 #include "kidCurl/kidCurl.hpp"
 
@@ -60,29 +61,6 @@ void kidCurl::add_url_parameters(const std::vector<kidCurl::Parameter>& paramete
     
     }
 }
-
-// Sanitize URL
-//void kidCurl::sanitize_url(std::string& url)
-//{
-//    for (uint32_t i{}; i < url.length(); i++)
-//    {
-//        switch (url[i])
-//        {
-//        case ' ':
-//            url[i] = '%';
-//            url.insert(i + 1, "20");
-//            break;
-//
-//        case '\'':
-//            url[i] = '%';
-//            url.insert(i + 1, "27");
-//            break;
-//
-//        default:
-//            break;
-//        }
-//    }
-//}
 
 // Easy GET request
 kidCurl::Response kidCurl::Get(std::string url, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
@@ -159,6 +137,45 @@ kidCurl::Response kidCurl::Post(std::string url, const std::string& content, con
     return response;
 }
 
+kidCurl::Response kidCurl::Patch(std::string url, const std::string& content, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
+{
+    // Response
+    Response response;
+
+    // URL Parameters
+    add_url_parameters(parameters, url);
+
+    //Headers
+    struct curl_slist* slist{ nullptr };
+
+    for (size_t i{ 0 }; i < headers.size(); i++)
+        slist = curl_slist_append(slist, (headers[i].name + ": " + headers[i].value).c_str());
+
+    if (curl)
+    {
+        // Curl options
+        curl_add_skeleton(curl, url.c_str(), user_agent.c_str(), proxy, slist, "PATCH", timeout, response.content, url.rfind("https", 0) == 0);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response.content);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content.c_str());
+
+        // Preform
+        curl_easy_perform(curl);
+
+        // Get info
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response.r_status);
+
+        // Cleanup
+        curl_easy_reset(curl);
+        curl_slist_free_all(slist); slist = nullptr;
+
+        return response;
+    }
+
+    response.r_status = 0;
+    return response;
+}
+
+// Easy PUT request
 kidCurl::Response kidCurl::Put(std::string url, const std::string& content, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
 {
     // Response
@@ -197,7 +214,8 @@ kidCurl::Response kidCurl::Put(std::string url, const std::string& content, cons
     return response;
 }
 
-kidCurl::Response kidCurl::Delete(std::string url, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
+// Easy DELETE request
+kidCurl::Response kidCurl::Delete(std::string url, const std::string& content, const std::vector<Parameter>& parameters, const std::vector<Header>& headers, const Proxy& proxy, const std::string& user_agent, long timeout)
 {
     // Response
     Response response;
@@ -215,6 +233,8 @@ kidCurl::Response kidCurl::Delete(std::string url, const std::vector<Parameter>&
     {
         // Curl options
         curl_add_skeleton(curl, url.c_str(), user_agent.c_str(), proxy, slist, "DELETE", timeout, response.content, url.rfind("https", 0) == 0);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response.content);
+        if (content != "") curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content.c_str());
 
         // Preform
         curl_easy_perform(curl);
@@ -222,13 +242,14 @@ kidCurl::Response kidCurl::Delete(std::string url, const std::vector<Parameter>&
         // Get info
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response.r_status);
 
-        //Cleanup
+        // Cleanup
         curl_easy_reset(curl);
         curl_slist_free_all(slist); slist = nullptr;
+
         return response;
     }
 
-    response.r_status = -1;
+    response.r_status = 0;
     return response;
 }
 
@@ -274,3 +295,4 @@ size_t kidCurl::WriteCallback(void* contents, size_t size, size_t mem, void* use
 
     return size * mem;
 }
+#pragma warning( default:4267 )
