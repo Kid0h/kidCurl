@@ -1,1 +1,2 @@
-I built these static Curl libraries, it's from a recent stable release.
+You can use the curl static library I built for windows x86 and x64 from here,
+or build your own if you have a different machine.. or just want to.

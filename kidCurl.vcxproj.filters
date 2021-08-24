@@ -15,11 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\kidCurl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="include\kidCurl\kidCurl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -53,11 +48,19 @@
     <ClInclude Include="include\curl\urlapi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\vendor\json\json.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\vendor\json\nlohmann\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\vendor\json\json.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nlohmann\json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="kidCurl\kidCurl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -2,18 +2,24 @@
 
 // Standard libraries
 #include <string>
+#include <memory>
 #include <vector>
 
-// Open-source libraries
-#include "vendor/json/json.h" // A JSON library provided by https://github.com/nlohmann/json
-
 // Curl
-#define CURL_STATICLIB
+#define CURL_STATICLIB // Comment this if you have a dynamic build of curl
 #include "curl/curl.h"
+#include "curl/curlver.h"
 
 // Library defined values
-#define KIDCURL_DEFAULT_TIMEOUT 10L
-#define KIDCURL_DEFAULT_USER_AGENT "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.8741.272 Safari/537.36"
+#define KIDCURL_DEFAULT_TIMEOUT_MS 10000L
+#define KIDCURL_FAKE_USER_AGENT "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.8741.272 Safari/537.36"
+
+// WinAPI definition that can collide with keywords in here
+#ifdef DELETE
+#undef DELETE 
+#endif
+
+#pragma warning(disable:4267)
 
 class kidCurl
 {
@@ -21,14 +27,13 @@ public:
     kidCurl();
     ~kidCurl();
 
-    // Response structure
-    struct Response
-    {
-        // Response
-        std::string content{};
-
-        // Status code
-        long r_status{};
+    enum class Type {
+        GET,
+        HEAD,
+        POST,
+        PATCH,
+        PUT,
+        DELETE
     };
 
     // URL parameter structure
@@ -48,7 +53,7 @@ public:
     // Proxy structure
     struct Proxy
     {
-        std::string proxy{};
+        std::string url{};
 
         std::string username{};
         std::string password{};
@@ -62,21 +67,34 @@ public:
         unsigned int color{};
     };
 
-    Response Get(std::string rUrl, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const std::string& user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
-    Response Post(std::string url, const std::string& content, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const std::string& user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
-    Response Patch(std::string url, const std::string& content, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const std::string& user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
-    Response Put(std::string url, const std::string& content, const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const std::string& user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
-    Response Delete(std::string url, const std::string& content = "", const std::vector<Parameter>& parameters = {}, const std::vector<Header>& headers = {}, const Proxy& proxy = {}, const std::string& user_agent = KIDCURL_DEFAULT_USER_AGENT, long timeout = KIDCURL_DEFAULT_TIMEOUT);
-    bool webhookExecute(const std::string& webhookUrl, const std::string& content, const std::string& username = "", const std::string& avatarUrl = "", const std::vector<Embed>& embeds = {});
+    // Response structure
+    struct Response
+    {
+        // Body
+        std::string body;
 
+        // Headers
+        std::vector<Header> headers;
 
+        // Status code
+        long status_code = 0;
+
+        // Total time in ms
+        long long total_time = 0;
+    };
+
+    std::unique_ptr<kidCurl::Response> Send(kidCurl::Type type, std::string url, const std::string& content = "", const std::vector<kidCurl::Parameter>& parameters = {}, const std::vector<kidCurl::Header>& headers = {}, long timeout = KIDCURL_DEFAULT_TIMEOUT_MS, const std::string& user_agent = "curl/" LIBCURL_VERSION, const kidCurl::Proxy& proxy = {});
 private:
+    // Helper functions
+
     CURL* curl;
 
     // Callback functions
-    static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
+    static size_t WriteCallback(void* buffer, size_t size, size_t nmemb, void* userp);
+    static size_t HeaderCallback(char* buffer, size_t size, size_t nmemb, void* userp);
 
-private:
-    static void curl_add_skeleton(CURL* curl, const char* url, const char* user_agent, const Proxy& proxy, curl_slist* slist, const char* type, long& timeout, std::string& output, bool ssl);
-    void add_url_parameters(const std::vector<kidCurl::Parameter>& parameters, std::string& url);
+    static void curl_add_skeleton(CURL* curl, const char* url, const std::string& content, const char* user_agent, const Proxy& proxy, curl_slist* headers, kidCurl::Type type, long& timeout, kidCurl::Response* output);
+    static void curl_get_info(CURL* curl, Response* output);
+    static void add_url_parameters(CURL* curl, const std::vector<kidCurl::Parameter>& parameters, std::string& url);
+    static void parse_raw_header(char* raw_header, size_t len, std::vector<kidCurl::Header>* headers);
 };

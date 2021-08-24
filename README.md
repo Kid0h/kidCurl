@@ -24,48 +24,38 @@ You'll only need to link against `kidCurl.lib`.
 
 Inside the `libs` folder you'll have the built library for each configuration, for example:
 
-If you're are building your project for `Win32` in `Debug` mode, you'll need to link agaist `libs\Win32\Debug\kidCurl.lib`.
+If you're are building your project for `x86` in `Debug` mode, you'll need to link agaist `libs\x86\Debug\kidCurl.lib`.
 
 If you'll be building for `x64` in `Release` mode, you'll need to link agaist `libs\x64\Release\kidCurl.lib`.
 
 ## Examples:
-Sending a GET & POST requests + a bonus Discord Webhook message:
+GET Request:
 ```c++
 #include <iostream>
-#include "kidCurl/kidCurl.hpp"
+#include <kidCurl/kidCurl.hpp>
 
 #define URL "https://www.myexternalip.com/raw"
-#define DISCORD_WEBHOOK_URL ""
 
-int main()
-{
-	// Request handler
-	kidCurl reqHandle;
+int main(void) {
+	// Our request handler, we will use it to send out requests.
+	kidCurl reqHandler;
 
-	// Get request
-	kidCurl::Response request_get = reqHandle.Get(URL);
-	std::cout << "GET Request:\n"
-		<< "Status: " << request_get.r_status
-		<< "\nContent: " << request_get.content
-		<< "\n\n";
+	auto req = reqHandler.Send(kidCurl::Type::GET, URL);
+	if (req) {
+		std::cout << "Status code: " << req->status_code << std::endl; // Request's HTTP Status code.
+		std::cout << "\nBody: " << req->body << std::endl; // Request's body.
+		std::cout << "\nTotal time: " << (float)req->total_time / 1000 << std::endl; // Request's total time in milliseconds, divided by 1000 to get value in seconds.
+		std::cout << "\nHeaders: \n";
+		for (auto& header : req->headers)
+			std::cout << header.name << ": " << header.value << "\n";
+	}
 
-
-	// Post request
-	kidCurl::Response request_post = reqHandle.Post(URL, "Hey!");
-	std::cout << "POST: Request\n"
-		<< "Status: " << request_post.r_status
-		<< "\n\n";
-
-
-	// Discord webhook request
-	bool request_discord_webhook = reqHandle.webhookExecute(DISCORD_WEBHOOK_URL, "Hey!");
-	std::cout << "Discord Webhook: Request\n"
-		<< "Success: " << std::boolalpha << request_discord_webhook
-		<< "\n\n";
-
+	// Wait for input
+	std::cin.get();
 	return 0;
 }
 ```
+For more examples click [here](examples/)!
 
 ## Reaching out
 If you have any issues or questions - you can open an issue [here](https://github.com/Kid0h/kidCurl/issues/new)!
