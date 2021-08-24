@@ -91,23 +91,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)libs\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)libs\$(Platform)\$(Configuration)\other\</IntDir>
+    <OutDir>$(SolutionDir)libs\x86\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)libs\x86\$(Configuration)\other\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)libs\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)libs\$(Platform)\$(Configuration)\other\</IntDir>
+    <OutDir>$(SolutionDir)libs\x86\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)libs\x86\$(Configuration)\other\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)libs\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)libs\$(Platform)\$(Configuration)\other\</IntDir>
+    <OutDir>$(SolutionDir)libs\x64\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)libs\x64\$(Configuration)\other\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)libs\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)libs\$(Platform)\$(Configuration)\other\</IntDir>
+    <OutDir>$(SolutionDir)libs\x64\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)libs\x64\$(Configuration)\other\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <VcpkgUseStatic>false</VcpkgUseStatic>

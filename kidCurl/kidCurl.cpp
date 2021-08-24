@@ -77,15 +77,15 @@ void kidCurl::add_url_parameters(CURL* curl, const std::vector<kidCurl::Paramete
 
 
 // Easy request
-std::unique_ptr<kidCurl::Response> kidCurl::Send(kidCurl::Type type, std::string url, const std::string& content, const std::vector<kidCurl::Parameter>& parameters, const std::vector<kidCurl::Header>& headers, long timeout, const std::string& user_agent, const kidCurl::Proxy& proxy)
+std::shared_ptr<kidCurl::Response> kidCurl::Send(kidCurl::Type type, std::string url, const std::string& content, const std::vector<kidCurl::Parameter>& parameters, const std::vector<kidCurl::Header>& headers, long timeout, const std::string& user_agent, const kidCurl::Proxy& proxy)
 {
     // Response
-    std::unique_ptr<Response> response;
+    std::shared_ptr<Response> response;
 
     if (curl)
     {
         // Allocate memory for response
-        response = std::make_unique<Response>();
+        response = std::make_shared<Response>();
 
         // URL Parameters
         add_url_parameters(curl, parameters, url);
