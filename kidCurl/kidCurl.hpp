@@ -20,8 +20,8 @@
 class kidCurl
 {
 public:
-    kidCurl() {}
-    ~kidCurl() {}
+    kidCurl();
+    ~kidCurl();
 
     enum class Type {
         GET,
@@ -94,6 +94,13 @@ private:
     inline static void add_url_parameters(CURL* curl, const std::vector<kidCurl::Parameter>& parameters, std::string& url);
     inline static void parse_raw_header(char* raw_header, size_t len, std::vector<kidCurl::Header>* headers);
 };
+
+kidCurl::kidCurl() {
+    curl = curl_easy_init();
+}
+kidCurl::~kidCurl() {
+    curl_easy_cleanup(curl);
+}
 
 void kidCurl::curl_add_skeleton(CURL* curl, const char* url, const std::string& content, const char* user_agent, const Proxy& proxy, curl_slist* headers, kidCurl::Type type, long& timeout, kidCurl::Response* output)
 {
