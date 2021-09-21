@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 // Curl
@@ -15,7 +16,7 @@
 // WinAPI definition that can collide with keywords in here
 #undef DELETE 
 
-#pragma warning(disable:4267)
+// #pragma warning(push: 4267)
 
 class kidCurl
 {
@@ -135,7 +136,11 @@ void kidCurl::curl_add_skeleton(CURL* curl, const char* url, const std::string& 
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, t.c_str());
 
     // Content
-    if (content != "") curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content.c_str());
+    size_t content_len = content.size();
+    if (content_len > 0) {
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, content_len);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content.c_str()); 
+    }
 
     // Timeout
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, timeout);
@@ -235,4 +240,4 @@ size_t kidCurl::HeaderCallback(char* buffer, size_t size, size_t mem, void* ptr)
     return size * mem;
 }
 
-#pragma warning(default:4267)
+// #pragma warning(pop: 4267)
