@@ -30,6 +30,7 @@ public:
         POST,
         PATCH,
         PUT,
+        OPTIONS,
         DELETE
     };
 
@@ -125,15 +126,17 @@ void kidCurl::curl_add_skeleton(CURL* curl, const char* url, const std::string& 
     if (proxy.url != "") { curl_easy_setopt(curl, CURLOPT_PROXY, proxy.url.c_str()); if (proxy.username != "") { curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, proxy.username.c_str()); curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, proxy.password.c_str()); } }
 
     // Request type
-    std::string t;
+    char raw_type[10] = {};
     switch (type) {
-    case kidCurl::Type::GET:      t = "GET"; break;
-    case kidCurl::Type::POST:     t = "POST"; break;
-    case kidCurl::Type::PATCH:    t = "PATCH"; break;
-    case kidCurl::Type::PUT:      t = "PUT"; break;
-    case kidCurl::Type::DELETE:   t = "DELETE"; break;
+    case kidCurl::Type::GET:        strcpy_s(raw_type, sizeof(char) * 10, "GET"); break;
+    case kidCurl::Type::POST:       strcpy_s(raw_type, sizeof(char) * 10, "POST"); break;
+    case kidCurl::Type::HEAD:       strcpy_s(raw_type, sizeof(char) * 10, "HEAD"); break;
+    case kidCurl::Type::PATCH:      strcpy_s(raw_type, sizeof(char) * 10, "PATCH"); break;
+    case kidCurl::Type::PUT:        strcpy_s(raw_type, sizeof(char) * 10, "PUT"); break;
+    case kidCurl::Type::OPTIONS:    strcpy_s(raw_type, sizeof(char) * 10, "OPTIONS"); break;
+    case kidCurl::Type::DELETE:     strcpy_s(raw_type, sizeof(char) * 10, "DELETE"); break;
     }
-    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, t.c_str());
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, raw_type);
 
     // Content
     size_t content_len = content.size();
