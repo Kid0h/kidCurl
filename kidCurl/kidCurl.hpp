@@ -1,8 +1,8 @@
 #pragma once
 
+#include <string.h>
 #include <string>
 #include <memory>
-#include <string_view>
 #include <vector>
 
 // Curl
@@ -13,10 +13,10 @@
 #define KIDCURL_DEFAULT_TIMEOUT_MS 10000L
 #define KIDCURL_FAKE_USER_AGENT "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.8741.272 Safari/537.36"
 
-// WinAPI definition that can collide with keywords in here
-#undef DELETE 
-
-// #pragma warning(push: 4267)
+#pragma warning(push: 4996)
+#pragma warning(disable: 4996)
+#pragma push_macro(DELETE)
+#undef DELETE
 
 class kidCurl
 {
@@ -81,7 +81,7 @@ public:
         long long total_time = 0;
     };
 
-    inline std::shared_ptr<kidCurl::Response> Send(kidCurl::Type type, std::string url, const std::string& content = "", const std::vector<kidCurl::Parameter>& parameters = {}, const std::vector<kidCurl::Header>& headers = {}, long timeout = KIDCURL_DEFAULT_TIMEOUT_MS, const std::string& user_agent = "curl/" LIBCURL_VERSION, const kidCurl::Proxy& proxy = {"", "", ""});
+    inline std::shared_ptr<kidCurl::Response> Send(kidCurl::Type type, std::string url, const std::string& content = "", const std::vector<kidCurl::Parameter>& parameters = {}, const std::vector<kidCurl::Header>& headers = {}, long timeout = KIDCURL_DEFAULT_TIMEOUT_MS, const std::string& user_agent = "curl/" LIBCURL_VERSION, const kidCurl::Proxy& proxy = { "", "", "" });
 private:
     // Curl handle
     CURL* curl;
@@ -128,13 +128,13 @@ void kidCurl::curl_add_skeleton(CURL* curl, const char* url, const std::string& 
     // Request type
     char raw_type[10] = {};
     switch (type) {
-    case kidCurl::Type::GET:        strcpy_s(raw_type, sizeof(char) * 10, "GET"); break;
-    case kidCurl::Type::POST:       strcpy_s(raw_type, sizeof(char) * 10, "POST"); break;
-    case kidCurl::Type::HEAD:       strcpy_s(raw_type, sizeof(char) * 10, "HEAD"); break;
-    case kidCurl::Type::PATCH:      strcpy_s(raw_type, sizeof(char) * 10, "PATCH"); break;
-    case kidCurl::Type::PUT:        strcpy_s(raw_type, sizeof(char) * 10, "PUT"); break;
-    case kidCurl::Type::OPTIONS:    strcpy_s(raw_type, sizeof(char) * 10, "OPTIONS"); break;
-    case kidCurl::Type::DELETE:     strcpy_s(raw_type, sizeof(char) * 10, "DELETE"); break;
+    case kidCurl::Type::GET:        strcpy(raw_type, "GET"); break;
+    case kidCurl::Type::POST:       strcpy(raw_type, "POST"); break;
+    case kidCurl::Type::HEAD:       strcpy(raw_type, "HEAD"); break;
+    case kidCurl::Type::PATCH:      strcpy(raw_type, "PATCH"); break;
+    case kidCurl::Type::PUT:        strcpy(raw_type, "PUT"); break;
+    case kidCurl::Type::OPTIONS:    strcpy(raw_type, "OPTIONS"); break;
+    case kidCurl::Type::DELETE:     strcpy(raw_type, "DELETE"); break;
     }
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, raw_type);
 
@@ -142,7 +142,7 @@ void kidCurl::curl_add_skeleton(CURL* curl, const char* url, const std::string& 
     size_t content_len = content.size();
     if (content_len > 0) {
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, content_len);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content.c_str()); 
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content.c_str());
     }
 
     // Timeout
@@ -218,12 +218,17 @@ std::shared_ptr<kidCurl::Response> kidCurl::Send(kidCurl::Type type, std::string
 
 void kidCurl::parse_raw_header(char* raw_header, size_t len, std::vector<Header>* headers)
 {
-    std::string_view header(raw_header, len);
-    size_t colon_pos = header.find_first_of(':');
+    size_t colon_pos = std::string::npos;
+    for (size_t i = 0; i < len; i++) {
+        if (raw_header[i] == ':') {
+            colon_pos = i;
+            break;
+        }
+    }
+    // size_t colon_pos = std::find_first_of(raw_header, 0, len, ':');
 
     if (colon_pos != std::string::npos) {
         headers->push_back({ { raw_header, colon_pos }, { raw_header + colon_pos + 2, len - colon_pos - 4 } });
-        // headers->emplace_back((raw_header, colon_pos), (raw_header + colon_pos + 2, len - colon_pos - 4));
     }
 }
 
@@ -238,9 +243,9 @@ size_t kidCurl::WriteCallback(void* buffer, size_t size, size_t mem, void* ptr)
 size_t kidCurl::HeaderCallback(char* buffer, size_t size, size_t mem, void* ptr)
 {
     kidCurl::Response* out = (kidCurl::Response*)ptr;
-    parse_raw_header((char*)buffer, size * mem, &out->headers);
+    parse_raw_header(buffer, size * mem, &out->headers);
 
     return size * mem;
 }
-
-// #pragma warning(pop: 4267)
+#pragma pop_macro(DELETE)
+#pragma warning(pop: 4996)
