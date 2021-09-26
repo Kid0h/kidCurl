@@ -15,7 +15,7 @@
 
 #pragma warning(push: 4996)
 #pragma warning(disable: 4996)
-#pragma push_macro(DELETE)
+#pragma push_macro("DELETE")
 #undef DELETE
 
 class kidCurl
@@ -247,5 +247,5 @@ size_t kidCurl::HeaderCallback(char* buffer, size_t size, size_t mem, void* ptr)
 
     return size * mem;
 }
-#pragma pop_macro(DELETE)
+#pragma pop_macro("DELETE")
 #pragma warning(pop: 4996)
