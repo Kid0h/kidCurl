@@ -97,10 +97,10 @@ private:
     inline static void parse_raw_header(char* raw_header, size_t len, std::vector<kidCurl::Header>* headers);
 };
 
-kidCurl::kidCurl() {
+inline kidCurl::kidCurl() {
     curl = curl_easy_init();
 }
-kidCurl::~kidCurl() {
+inline kidCurl::~kidCurl() {
     curl_easy_cleanup(curl);
 }
 
