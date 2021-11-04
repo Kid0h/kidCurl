@@ -1,5 +1,9 @@
 # kidCurl: A Curl wrapper for kids! ![version](https://img.shields.io/github/v/release/kid0h/kidCurl)
 A libcurl wrapper for simplified requests with a C++-style interface.
+
+## Disclaimer
+The kidCurl wrapper is not meant for production, it is simply an example of how one could use libcurl.
+
 ## Usage
 You'll need libcurl already set up in your project in order to use this wrapper.
 
