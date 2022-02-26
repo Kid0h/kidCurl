@@ -81,7 +81,7 @@ public:
         long long total_time = 0;
     };
 
-    inline std::shared_ptr<kidCurl::Response> Send(kidCurl::Type type, std::string url, const std::string& content = "", const std::vector<kidCurl::Parameter>& parameters = {}, const std::vector<kidCurl::Header>& headers = {}, long timeout = KIDCURL_DEFAULT_TIMEOUT_MS, const std::string& user_agent = "curl/" LIBCURL_VERSION, const kidCurl::Proxy& proxy = { "", "", "" });
+    inline std::unique_ptr<kidCurl::Response> Send(kidCurl::Type type, std::string url, const std::string& content = "", const std::vector<kidCurl::Parameter>& parameters = {}, const std::vector<kidCurl::Header>& headers = {}, long timeout = KIDCURL_DEFAULT_TIMEOUT_MS, const std::string& user_agent = "curl/" LIBCURL_VERSION, const kidCurl::Proxy& proxy = { "", "", "" });
 private:
     // Curl handle
     CURL* curl;
@@ -179,15 +179,15 @@ void kidCurl::add_url_parameters(CURL* curl, const std::vector<kidCurl::Paramete
 
 
 // Easy request
-std::shared_ptr<kidCurl::Response> kidCurl::Send(kidCurl::Type type, std::string url, const std::string& content, const std::vector<kidCurl::Parameter>& parameters, const std::vector<kidCurl::Header>& headers, long timeout, const std::string& user_agent, const kidCurl::Proxy& proxy)
+std::unique_ptr<kidCurl::Response> kidCurl::Send(kidCurl::Type type, std::string url, const std::string& content, const std::vector<kidCurl::Parameter>& parameters, const std::vector<kidCurl::Header>& headers, long timeout, const std::string& user_agent, const kidCurl::Proxy& proxy)
 {
     // Response
-    std::shared_ptr<Response> response;
+    std::unique_ptr<Response> response;
 
     if (curl)
     {
         // Allocate memory for response
-        response = std::make_shared<Response>();
+        response = std::make_unique<Response>();
 
         // URL Parameters
         add_url_parameters(curl, parameters, url);
