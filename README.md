@@ -7,12 +7,12 @@ The kidCurl wrapper is not meant for production, it is simply an example of how 
 ## Usage
 You'll need libcurl already set up in your project in order to use this wrapper.
 
-To start using the wrapper, include `kidCurl/kidCurl.hpp`.
+To start using the wrapper, include the `include` folder and you can start using `kidCurl.hpp`.
 ## Example
 GET Request:
 ```c++
 #include <iostream>
-#include <kidCurl/kidCurl.hpp>
+#include <kidCurl.hpp>
 
 #define URL "https://www.myexternalip.com/raw"
 
