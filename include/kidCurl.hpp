@@ -15,8 +15,6 @@
 
 #pragma warning(push: 4996)
 #pragma warning(disable: 4996)
-#pragma push_macro("DELETE")
-#undef DELETE
 
 class kidCurl
 {
@@ -31,7 +29,7 @@ public:
         PATCH,
         PUT,
         OPTIONS,
-        DELETE
+        DELETE_
     };
 
     // URL parameter structure
@@ -134,7 +132,7 @@ void kidCurl::curl_add_skeleton(CURL* curl, const char* url, const std::string& 
     case kidCurl::Type::PATCH:      strcpy(raw_type, "PATCH"); break;
     case kidCurl::Type::PUT:        strcpy(raw_type, "PUT"); break;
     case kidCurl::Type::OPTIONS:    strcpy(raw_type, "OPTIONS"); break;
-    case kidCurl::Type::DELETE:     strcpy(raw_type, "DELETE"); break;
+    case kidCurl::Type::DELETE_:     strcpy(raw_type, "DELETE"); break;
     }
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, raw_type);
 
@@ -247,5 +245,4 @@ size_t kidCurl::HeaderCallback(char* buffer, size_t size, size_t mem, void* ptr)
 
     return size * mem;
 }
-#pragma pop_macro("DELETE")
 #pragma warning(pop: 4996)
